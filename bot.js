@@ -34,7 +34,8 @@ client.on('raw', async (packet) => {
 
       case 'MESSAGE_REACTION_ADD':
         const channel = await client.channels.fetch(data.channel_id)
-        const message = await channel.messages.fetch(data.message_id, true, true)
+
+        let message = await channel.messages.fetch(data.message_id, true, true)
 
         if (data.channel_id === '775930950034260008') {
           if (!message.author.bot)
@@ -98,6 +99,8 @@ client.on('raw', async (packet) => {
 client.login(process.env.DISCORD_BOT_TOKEN)
 
 async function dealWithMessage(message) {
+  console.log(message)
+
   if (message.content.indexOf('system') > -1)
     return
 
@@ -118,8 +121,8 @@ async function dealWithMessage(message) {
 
   const isDevMessage = inspect.indexOf('quest') === -1
 
-  if (isDevMessage !== isDev)
-    return
+  // if (isDevMessage !== isDev)
+  //   return
 
   const series = parseInt(badge.match(/\d{2}/g)[0])
 
@@ -142,7 +145,7 @@ async function dealWithMessage(message) {
       })
     })
 
-    message.delete()
+    // message.delete()
   }
 
   if (downvotes && downvotes.count >= 2) {
@@ -159,6 +162,6 @@ async function dealWithMessage(message) {
       })
     })
 
-    message.delete()
+    // message.delete()
   }
 }
