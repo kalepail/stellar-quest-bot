@@ -130,8 +130,6 @@ async function dealWithMessage(message) {
   }
 
   if (upvotes && upvotes.count >= 2) {
-    console.log('accept')
-
     await fetch(`${baseUrl}/user/submit?series=${series}`, {
       method: 'POST',
       headers: {
@@ -143,12 +141,10 @@ async function dealWithMessage(message) {
       })
     })
 
-    message.delete()
+    await message.delete()
   }
 
   if (downvotes && downvotes.count >= 2) {
-    console.log('reject')
-
     await fetch(`${baseUrl}/user/submit?series=${series}`, {
       method: 'POST',
       headers: {
@@ -160,6 +156,6 @@ async function dealWithMessage(message) {
       })
     })
 
-    message.delete()
+    await message.delete()
   }
 }
