@@ -67,15 +67,17 @@ client.on('raw', async (packet) => {
         }
 
         else if (data.emoji.name === '⚠️') {
-          const legitWarnFlags = await message.reactions.cache.map(async (reaction) => {
+          const legitWarnFlags = await message.reactions.cache
+          .filter((reaction) => reaction.emoji.name === '⚠️')
+          .map(async (reaction) => {
+            await reaction.users.fetch()
+
             const hasPower = await Promise.all(
               reaction.users.cache.map(async (user) => {
-                await reaction.message.guild.members.fetch({
+                const member = await reaction.message.guild.members.fetch({
                   user,
                   force: true,
                 })
-
-                const member = reaction.message.guild.members.cache.get(user.id)
 
                 return (
                   member.roles.cache.has('763799716546215977') // Admin
