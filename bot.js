@@ -32,9 +32,17 @@ client.on('raw', async (packet) => {
         // setTimeout(() => bootMessage.delete(), 10000)
       break
 
-      case 'MESSAGE_REACTION_ADD':
-        const channel = await client.channels.fetch(data.channel_id)
+      case 'MESSAGE_CREATE':
+        if (data.content.indexOf('airdrop') > -1) {
+          const channel = await client.channels.fetch(data.channel_id, true, true)
+          const message = await channel.messages.fetch(data.id, true, true)
 
+          await message.delete()
+        }
+      break
+
+      case 'MESSAGE_REACTION_ADD':
+        const channel = await client.channels.fetch(data.channel_id, true, true)
         let message = await channel.messages.fetch(data.message_id, true, true)
 
         if (data.channel_id === '775930950034260008') {
@@ -64,7 +72,6 @@ client.on('raw', async (packet) => {
               reaction.users.cache.map(async (user) => {
                 await reaction.message.guild.members.fetch({
                   user,
-                  cache: true,
                   force: true,
                 })
 
@@ -99,7 +106,7 @@ client.on('raw', async (packet) => {
 client.login(process.env.DISCORD_BOT_TOKEN)
 
 async function dealWithMessage(message) {
-  if (message.content.indexOf('system') > -1)
+  if (message.content.indexOf('Inspect') === -1)
     return
 
   const upvotes = message.reactions.cache.filter((reaction) => reaction.emoji.name === '👍').first()
