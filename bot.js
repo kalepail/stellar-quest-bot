@@ -25,8 +25,8 @@ client.on('raw', async (packet) => {
 
     switch (type) {
       case 'READY':
-        const fraudChannel = await client.channels.fetch('775930950034260008')
-        await fraudChannel.messages.fetch({limit: 50}, {force: true}).then((messages) => messages.map(dealWithMessage))
+        const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
+        await fraudChannel.messages.fetch({limit: 50}, true, true).then((messages) => messages.map(dealWithMessage))
 
         // const bootMessage = await fraudChannel.send(`${process.env.NODE_ENV} system booted`)
         // setTimeout(() => bootMessage.delete(), 10000)
@@ -34,7 +34,7 @@ client.on('raw', async (packet) => {
 
       case 'MESSAGE_REACTION_ADD':
         const channel = await client.channels.fetch(data.channel_id)
-        const message = await channel.messages.fetch(data.message_id)
+        const message = await channel.messages.fetch(data.message_id, true, true)
 
         if (data.channel_id === '775930950034260008') {
           if (!message.author.bot)
@@ -61,7 +61,11 @@ client.on('raw', async (packet) => {
           const legitWarnFlags = await message.reactions.cache.map(async (reaction) => {
             const hasPower = await Promise.all(
               reaction.users.cache.map(async (user) => {
-                await reaction.message.guild.members.fetch(user.id, {force: true})
+                await reaction.message.guild.members.fetch({
+                  user,
+                  cache: true,
+                  force: true,
+                })
 
                 const member = reaction.message.guild.members.cache.get(user.id)
 
