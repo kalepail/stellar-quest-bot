@@ -62,15 +62,23 @@ client.on('raw', async (packet) => {
 client.login(process.env.DISCORD_BOT_TOKEN)
 
 async function dealWithMessage(message) {
+  if (message.content.indexOf('system') > -1)
+    return
+
   const upvotes = message.reactions.cache.filter((reaction) => reaction.emoji.name === '👍').first()
   const downvotes = message.reactions.cache.filter((reaction) => reaction.emoji.name === '👎').first()
 
   const baseUrl = process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8787' : 'https://api-quest.stellar.buzz'
 
-  let [ id,,badge,inspect ] = message.content.split('\n')
-      id = last(id.replace(/\s/g, '').split(':'))
-      badge = last(badge.replace(/\s/g, '').split(':'))
-      inspect = last(inspect.replace(/\s/g, '').split(':'))
+  let [
+    id,
+    ,
+    badge,
+    inspect
+  ] = message.content.split('\n')
+  id = last(id.replace(/\s/g, '').split(':'))
+  badge = last(badge.replace(/\s/g, '').split(':'))
+  inspect = last(inspect.replace(/\s/g, '').split(':'))
 
   const isDevMessage = inspect.indexOf('quest') === -1
 
