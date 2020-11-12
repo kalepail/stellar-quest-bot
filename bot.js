@@ -1,5 +1,11 @@
-if (process.env.NODE_ENV === 'development')
+const isDev = process.env.NODE_ENV === 'development'
+
+if (isDev)
   require('dotenv').config()
+
+const { last } = require('lodash')
+
+// TODO: better error handling
 
 const fetch = require('node-fetch')
 const { Client } = require('discord.js')
@@ -61,9 +67,15 @@ async function dealWithMessage(message) {
 
   const baseUrl = process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8787' : 'https://api-quest.stellar.buzz'
 
-  let [ id,,badge ] = message.content.split('\n')
-      id = id.replace(/\s/g, '').split(':')[1]
-      badge = badge.replace(/\s/g, '').split(':')[1]
+  let [ id,,badge,inspect ] = message.content.split('\n')
+      id = last(id.replace(/\s/g, '').split(':'))
+      badge = last(badge.replace(/\s/g, '').split(':'))
+      inspect = last(inspect.replace(/\s/g, '').split(':'))
+
+  const isDevMessage = inspect.indexOf('quest') === -1
+
+  if (isDevMessage !== isDev)
+    return
 
   const series = parseInt(badge.match(/\d{2}/g)[0])
 
