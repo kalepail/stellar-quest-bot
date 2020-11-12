@@ -3,9 +3,10 @@ const isDev = process.env.NODE_ENV === 'development'
 if (isDev)
   require('dotenv').config()
 
-const { last } = require('lodash')
+const { last, compact } = require('lodash')
 
 // TODO: better error handling
+// TODO: only one message per unverified user, maybe update when new ones come in (increment counter or something, {x} pending prizes)
 
 const fetch = require('node-fetch')
 const { Client } = require('discord.js')
@@ -21,37 +22,62 @@ client.on('raw', async (packet) => {
   const {t: type, d: data} = packet
   // console.log(packet)
 
-  const channel = await client.channels.fetch('775930950034260008')
-
   switch (type) {
     case 'READY':
-      await channel.messages.fetch().then((messages) => messages.map(dealWithMessage))
-      const bootMessage = await channel.send(`${process.env.NODE_ENV} system booted`)
+      const fraudChannel = await client.channels.fetch('775930950034260008')
+      await fraudChannel.messages.fetch().then((messages) => messages.map(dealWithMessage))
+      // const bootMessage = await fraudChannel.send(`${process.env.NODE_ENV} system booted`)
 
-      setTimeout(() => bootMessage.delete(), 10000)
+      // setTimeout(() => bootMessage.delete(), 10000)
     break
 
     case 'MESSAGE_REACTION_ADD':
-      let message = await channel.messages.fetch(data.message_id)
+      const channel = await client.channels.fetch(data.channel_id)
+      const message = await channel.messages.fetch(data.message_id)
 
-      if (!message.author.bot) return
+      if (data.channel_id === '775930950034260008') {
+        if (!message.author.bot)
+          return
 
-      if (
-        data.emoji.name !== '👍'
-        && data.emoji.name !== '👎'
-      ) {
-        await message.reactions.cache.get(data.emoji.name).remove()
-        return
+        if (
+          data.emoji.name !== '👍'
+          && data.emoji.name !== '👎'
+        ) return message.reactions.cache.get(data.emoji.name).remove()
+
+        await Promise.all(message.reactions.cache.map((reaction) => {
+          if (reaction.emoji.name !== data.emoji.name)
+            return reaction.users.remove(data.user_id)
+        }))
+
+        message = await message.fetch(true)
+
+        await dealWithMessage(message)
       }
 
-      await Promise.all(message.reactions.cache.map((reaction) => {
-        if (reaction.emoji.name !== data.emoji.name)
-          return reaction.users.remove(data.user_id)
-      }))
+      else if (data.emoji.name === '⚠️') {
+        const legitWarnFlags = await message.reactions.cache.map(async (reaction) => {
+          await reaction.users.fetch(true)
 
-      message = await message.fetch(true)
+          const hasPower = await Promise.all(
+            reaction.users.cache.map(async (user) => {
+              await reaction.message.guild.members.fetch(user.id, {force: true})
 
-      await dealWithMessage(message)
+              const member = reaction.message.guild.members.cache.get(user.id)
+
+              return (
+                member.roles.cache.has('763799716546215977') // Admin
+                || member.roles.cache.has('765215960863997962') // SDF
+                || member.roles.cache.has('766768688342499390') // Lumenaut
+              )
+            })
+          ).then(compact)
+
+          return hasPower.length
+        })[0]
+
+        if (legitWarnFlags >= 2)
+          message.delete()
+      }
     break
 
     default:

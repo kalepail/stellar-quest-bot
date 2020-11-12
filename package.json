@@ -3,8 +3,8 @@
   "private": true,
   "main": "bot.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon bot.js",
-    "start": "node bot.js"
+    "start": "NODE_ENV=development nodemon bot.js",
+    "exe": "node bot.js"
   },
   "dependencies": {
     "discord.js": "^12.4.1",
