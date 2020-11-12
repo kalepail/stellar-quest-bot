@@ -20,6 +20,8 @@ const client = new Client({partials: [
   'GUILD_MEMBER'
 ]})
 
+const baseUrl = isDev ? 'http://127.0.0.1:8787' : 'https://api-quest.stellar.buzz'
+
 client.on('raw', async (packet) => {
   try {
     const {t: type, d: data} = packet
@@ -41,6 +43,32 @@ client.on('raw', async (packet) => {
 
           await message.delete()
         }
+
+        else if (
+          data.channel_id === '768682525119610892' // admins-only channel
+          && data.content.indexOf('verify') > -1
+        ) {
+          const [command, id, series] = data.content.split(' ')
+
+          switch(command) {
+            case 'verify':
+              await fetch(`${baseUrl}/user/submit?series=${series}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  id,
+                  token: process.env.GROOT_KEY,
+                  verified: true
+                })
+              })
+            break
+
+            default:
+            return
+          }
+        }
       break
 
       case 'MESSAGE_REACTION_ADD':
@@ -51,7 +79,7 @@ client.on('raw', async (packet) => {
           if (!message.author.bot)
             return
 
-          if (
+          else if (
             data.emoji.name !== '👍'
             && data.emoji.name !== '👎'
           ) await message.reactions.cache.get(data.emoji.name).remove()
@@ -116,8 +144,6 @@ async function dealWithMessage(message) {
   const upvotes = message.reactions.cache.filter((reaction) => reaction.emoji.name === '👍').first()
   const downvotes = message.reactions.cache.filter((reaction) => reaction.emoji.name === '👎').first()
 
-  const baseUrl = process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8787' : 'https://api-quest.stellar.buzz'
-
   let [
     id,
     ,
@@ -155,7 +181,7 @@ async function dealWithMessage(message) {
     await message.delete()
   }
 
-  if (downvotes && downvotes.count >= 3) {
+  else if (downvotes && downvotes.count >= 3) {
     await fetch(`${baseUrl}/user/submit?series=${series}`, {
       method: 'POST',
       headers: {
