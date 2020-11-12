@@ -6,7 +6,9 @@ if (isDev)
 const { last, compact } = require('lodash')
 
 // TODO: better error handling
-// TODO: only one message per unverified user, maybe update when new ones come in (increment counter or something, {x} pending prizes)
+// TODO: only one message per unverified user,
+  // maybe update when new ones come in (increment counter or something, {x} pending prizes)
+  // could also just auto remove any other messages in channel matching that username and env
 
 const fetch = require('node-fetch')
 const { Client } = require('discord.js')
@@ -153,7 +155,7 @@ async function dealWithMessage(message) {
     await message.delete()
   }
 
-  if (downvotes && downvotes.count >= 2) {
+  if (downvotes && downvotes.count >= 3) {
     await fetch(`${baseUrl}/user/submit?series=${series}`, {
       method: 'POST',
       headers: {
