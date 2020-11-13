@@ -3,7 +3,8 @@ const isDev = process.env.NODE_ENV === 'development'
 if (isDev)
   require('dotenv').config()
 
-const { last, compact } = require('lodash')
+const { last, compact, groupBy, map } = require('lodash')
+const Bluebird = require('bluebird')
 
 // TODO: better error handling
 // TODO: only one message per unverified user,
@@ -30,7 +31,7 @@ client.on('raw', async (packet) => {
     switch (type) {
       case 'READY':
         const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
-        await fraudChannel.messages.fetch({limit: 50}, true, true).then((messages) => messages.map(dealWithMessage))
+        await fraudChannel.messages.fetch({limit: 100}, true, true).then((messages) => messages.map(dealWithMessage))
 
         // const bootMessage = await fraudChannel.send(`${process.env.NODE_ENV} system booted`)
         // setTimeout(() => bootMessage.delete(), 10000)
@@ -68,6 +69,51 @@ client.on('raw', async (packet) => {
             default:
             return
           }
+        }
+
+        else if (
+          data.channel_id === '775930950034260008' // fraud-squad channel
+          && data.content.indexOf('clean') > -1
+        ) {
+          const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
+          const message = await fraudChannel.messages.fetch(data.id, true, true)
+
+          await message.delete()
+
+          let messagesGroupedByUser = await fraudChannel.messages.fetch({limit: 100}, true, true)
+          .then((messages) => {
+            messages = messages.map((message) => message)
+
+            return groupBy(messages, (message) => {
+              if (message.content.indexOf('Inspect') === -1)
+                return
+
+              let [
+                id
+              ] = message.content.split('\n')
+              id = last(id.replace(/\s/g, '').split(':'))
+
+              return id
+            })
+          })
+
+          messagesGroupedByUser = map(messagesGroupedByUser, (messages, user) => ({
+            user,
+            messages
+          }))
+
+          console.log('Begin clean')
+          await Bluebird.mapSeries(messagesGroupedByUser, ({messages, user}) => {
+            console.log(`User: ${user}`)
+
+            return Bluebird.mapSeries(messages, async (message, i) => {
+              if (i) {
+                console.log(`Message: ${message.id}`)
+                return message.delete()
+              }
+            })
+          })
+          console.log('Finish clean')
         }
       break
 
