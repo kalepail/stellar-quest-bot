@@ -32,9 +32,6 @@ client.on('raw', async (packet) => {
       case 'READY':
         const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
         await fraudChannel.messages.fetch({limit: 100}, true, true).then((messages) => messages.map(dealWithMessage))
-
-        // const bootMessage = await fraudChannel.send(`${process.env.NODE_ENV} system booted`)
-        // setTimeout(() => bootMessage.delete(), 10000)
       break
 
       case 'MESSAGE_CREATE':
@@ -73,12 +70,13 @@ client.on('raw', async (packet) => {
 
         else if (
           data.channel_id === '775930950034260008' // fraud-squad channel
-          && data.content.indexOf('clean') > -1
+          && data.content.indexOf('♻️') > -1
         ) {
           const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
-          const message = await fraudChannel.messages.fetch(data.id, true, true)
+          const commandMessage = await fraudChannel.messages.fetch(data.id, true, true)
 
-          await message.delete()
+          await commandMessage.delete().catch(() => {})
+          const cleaningMessage = await fraudChannel.send('Cleaning, please wait...')
 
           let messagesGroupedByUser = await fraudChannel.messages.fetch({limit: 100}, true, true)
           .then((messages) => {
@@ -102,18 +100,18 @@ client.on('raw', async (packet) => {
             messages
           }))
 
-          console.log('Begin clean')
           await Bluebird.mapSeries(messagesGroupedByUser, ({messages, user}) => {
             console.log(`User: ${user}`)
 
             return Bluebird.mapSeries(messages, async (message, i) => {
               if (i) {
                 console.log(`Message: ${message.id}`)
-                return message.delete()
+                return message.delete().catch(() => {})
               }
             })
           })
-          console.log('Finish clean')
+
+          await cleaningMessage.delete()
         }
       break
 
