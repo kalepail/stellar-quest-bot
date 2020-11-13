@@ -101,14 +101,16 @@ client.on('raw', async (packet) => {
           }))
 
           await Bluebird.mapSeries(messagesGroupedByUser, ({messages, user}) => {
-            console.log(`User: ${user}`)
+            if (user != undefined) {
+              console.log(`User: ${user}`)
 
-            return Bluebird.mapSeries(messages, async (message, i) => {
-              if (i) {
-                console.log(`Message: ${message.id}`)
-                return message.delete().catch(() => {})
-              }
-            })
+              return Bluebird.mapSeries(messages, async (message, i) => {
+                if (i) {
+                  console.log(`Message: ${message.id}`)
+                  return message.delete().catch(() => {})
+                }
+              })
+            }
           })
 
           await cleaningMessage.delete()
