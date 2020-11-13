@@ -190,8 +190,7 @@ async function dealWithMessage(message, channel) {
   const upvotes = message.reactions.cache.filter((reaction) => reaction.emoji.name === '👍').first()
   const downvotes = message.reactions.cache.filter((reaction) => reaction.emoji.name === '👎').first()
 
-  let [
-    ,
+  let [,,
     badge,
     inspect
   ] = message.content.split('\n')
