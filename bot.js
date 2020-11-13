@@ -58,7 +58,7 @@ client.on('raw', async (packet) => {
                 body: JSON.stringify({
                   id,
                   token: process.env.GROOT_KEY,
-                  verified: true
+                  verified: 'yes'
                 })
               })
             break
@@ -217,7 +217,7 @@ async function dealWithMessage(message, channel) {
       },
       body: JSON.stringify({
         ...body,
-        verified: true
+        verified: 'yes'
       })
     })
 
@@ -233,7 +233,7 @@ async function dealWithMessage(message, channel) {
       },
       body: JSON.stringify({
         ...body,
-        verified: false
+        verified: 'no'
       })
     })
 
