@@ -159,15 +159,8 @@ async function cleanUpFraudChannel(channel) {
     messages = messages.map((message) => message)
 
     return groupBy(messages, (message) => {
-      if (message.content.indexOf('Inspect') === -1)
-        return
-
-      let [
-        id
-      ] = message.content.split('\n')
-      id = last(id.replace(/\s/g, '').split(':'))
-
-      return id
+      if (message.content.indexOf('Inspect') > -1)
+        return message.author.username
     })
   })
 
@@ -198,12 +191,10 @@ async function dealWithMessage(message, channel) {
   const downvotes = message.reactions.cache.filter((reaction) => reaction.emoji.name === '👎').first()
 
   let [
-    id,
     ,
     badge,
     inspect
   ] = message.content.split('\n')
-  id = last(id.replace(/\s/g, '').split(':'))
   badge = last(badge.replace(/\s/g, '').split(':'))
   inspect = last(inspect.replace(/\s/g, '').split(':'))
 
@@ -215,7 +206,7 @@ async function dealWithMessage(message, channel) {
   const series = parseInt(badge.match(/\d{2}/g)[0])
 
   const body = {
-    id,
+    id: message.author.username,
     token: process.env.GROOT_KEY,
   }
 
