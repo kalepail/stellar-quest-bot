@@ -101,7 +101,7 @@ client.on('raw', async (packet) => {
           }))
 
           await Bluebird.mapSeries(messagesGroupedByUser, ({messages, user}) => {
-            if (user != undefined) {
+            if (user !== 'undefined') {
               console.log(`User: ${user}`)
 
               return Bluebird.mapSeries(messages, async (message, i) => {
