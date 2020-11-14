@@ -6,11 +6,6 @@ if (isDev)
 const { last, compact, groupBy, map } = require('lodash')
 const Bluebird = require('bluebird')
 
-// TODO: better error handling
-// TODO: only one message per unverified user,
-  // maybe update when new ones come in (increment counter or something, {x} pending prizes)
-  // could also just auto remove any other messages in channel matching that username and env
-
 const fetch = require('node-fetch')
 const { Client } = require('discord.js')
 const client = new Client({partials: [
@@ -46,26 +41,28 @@ client.on('raw', async (packet) => {
           data.channel_id === '768682525119610892' // admins-only channel
           && data.content.indexOf('verify') > -1
         ) {
-          const [command, id, series] = data.content.split(' ')
+          const channel = await client.channels.fetch(data.channel_id, true, true)
+          const message = await channel.messages.fetch(data.id, true, true)
 
-          switch(command) {
-            case 'verify':
-              await fetch(`${baseUrl}/user/submit?series=${series}`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  id,
-                  token: process.env.GROOT_KEY,
-                  verified: 'yes'
-                })
-              })
-            break
+          const [,
+            id,
+            series
+          ] = data.content.split(' ')
 
-            default:
-            return
-          }
+          await fetch(`${baseUrl}/user/submit?series=${series}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              id,
+              token: process.env.GROOT_KEY,
+              verified: 'yes'
+            })
+          })
+
+          console.log(id, 'verified')
+          await message.delete()
         }
 
         else if (
