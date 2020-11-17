@@ -67,15 +67,18 @@ client.on('raw', async (packet) => {
 
         else if (
           data.channel_id === '775930950034260008' // fraud-squad channel
-          && data.content.indexOf('♻️') > -1
+          && (
+            data.content.indexOf('♻️') > -1
+            || data.content.indexOf('✨') > -1
+          )
         ) {
-          const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
+          const fraudChannel = await client.channels.fetch(data.channel_id, true, true)
           const commandMessage = await fraudChannel.messages.fetch(data.id, true, true)
 
           await commandMessage.delete().catch(() => {})
           const cleaningMessage = await fraudChannel.send('Cleaning, please wait...')
 
-          await cleanUpFraudChannel(fraudChannel)
+          await cleanUpFraudChannel(fraudChannel, data.content.indexOf('✨') > -1)
 
           await cleaningMessage.delete()
         }
@@ -147,7 +150,7 @@ client.on('raw', async (packet) => {
 
 client.login(process.env.DISCORD_BOT_TOKEN)
 
-async function cleanUpFraudChannel(channel) {
+async function cleanUpFraudChannel(channel, trashConvo) {
   if (channel.id !== '775930950034260008')
     return
 
@@ -158,6 +161,8 @@ async function cleanUpFraudChannel(channel) {
     return groupBy(messages, (message) => {
       if (message.content.indexOf('Inspect') > -1)
         return message.author.username
+      else if (trashConvo)
+        return 'convo'
     })
   })
 
