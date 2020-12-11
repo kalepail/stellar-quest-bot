@@ -89,8 +89,10 @@ client.on('raw', async (packet) => {
         let message = await channel.messages.fetch(data.message_id, true, true)
 
         if (data.channel_id === '775930950034260008') {
-          if (!message.author.bot)
-            return
+          if (
+            !message.author.bot
+            || data.emoji.name === '🧠'
+          ) return
 
           else if (
             data.emoji.name !== '👍'
