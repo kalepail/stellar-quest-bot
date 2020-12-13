@@ -177,7 +177,7 @@ async function cleanUpFraudChannel(channel, trashConvo) {
     if (user !== 'undefined') {
       console.log(`User: ${user}`)
 
-      return Bluebird.mapSeries(messages, async (message, i) => {
+      return Bluebird.mapSeries(messages.reverse(), async (message, i) => {
         if (i) {
           console.log(`Message: ${message.id}`)
           return message.delete().catch(() => {})
