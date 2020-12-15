@@ -4,6 +4,7 @@ if (isDev)
   require('dotenv').config()
 
 const { findIndex } = require('lodash')
+const moment = require('moment')
 const Bluebird = require('bluebird')
 
 const fetch = require('node-fetch')
@@ -32,14 +33,16 @@ async function call() {
   .then(async (res) => {
     const body = await res.json()
     const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
+    const verifyChannel = await client.channels.fetch('764096940450250763', true, true)
 
     if (res.ok) {
-      let fetched
+      let fcFetched
+      let vcFetched
 
       do {
-        fetched = await fraudChannel.messages.fetch({limit: 100})
+        fcFetched = await fraudChannel.messages.fetch({limit: 100}, true, true)
 
-        fetched = fetched.filter((message) => {
+        fcFetched = fcFetched.filter((message) => {
           if (message.author.username.indexOf('→') === -1)
             return true
 
@@ -52,8 +55,23 @@ async function call() {
           }
         })
 
-        await fraudChannel.bulkDelete(fetched)
-      } while(fetched.size >= 1)
+        await fraudChannel.bulkDelete(fcFetched)
+      } while(fcFetched.size >= 1)
+
+      do {
+        vcFetched = await verifyChannel.messages.fetch({limit: 100}, true, true)
+
+        vcFetched = vcFetched.filter((message) =>
+          moment.utc(message.createdTimestamp, 'x').isBefore(moment.utc().subtract(24, 'hours'))
+        )
+
+        // await Bluebird.mapSeries((vcFetched), ([id, message]) => {
+        //   console.log('deleted', id)
+        //   return message.delete()
+        // })
+
+        await verifyChannel.bulkDelete(vcFetched)
+      } while(vcFetched.size >= 1)
 
       await new Bluebird.mapSeries(body, (user) => {
         const webhookOptions = {
