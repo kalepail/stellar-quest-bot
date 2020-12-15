@@ -33,27 +33,32 @@ async function call() {
   return fetch(`https://api-quest.stellar.buzz/utils/pending?series=${args[0]}&token=${process.env.GROOT_KEY}`)
   .then(async (res) => {
     const body = await res.json()
-    const verifyChannel = await client.channels.fetch('764096940450250763', true, true)
-    const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
 
     if (res.ok) {
-      let vcFetched
+      if (args[0] === 1) {
+        const verifyChannel = await client.channels.fetch('764096940450250763', true, true)
+
+        let vcFetched
+
+        do {
+          vcFetched = await verifyChannel.messages.fetch({limit: 100}, true, true)
+
+          vcFetched = vcFetched.filter((message) =>
+            moment.utc(message.createdTimestamp, 'x').isBefore(moment.utc().subtract(24, 'hours'))
+          )
+
+          // await Bluebird.mapSeries((vcFetched), ([id, message]) => {
+          //   console.log('deleted', id)
+          //   return message.delete()
+          // })
+
+          await verifyChannel.bulkDelete(vcFetched)
+        } while(vcFetched.size >= 1)
+      }
+
+      const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
+
       let fcFetched
-
-      if (args[0] === 1) { do {
-        vcFetched = await verifyChannel.messages.fetch({limit: 100}, true, true)
-
-        vcFetched = vcFetched.filter((message) =>
-          moment.utc(message.createdTimestamp, 'x').isBefore(moment.utc().subtract(24, 'hours'))
-        )
-
-        // await Bluebird.mapSeries((vcFetched), ([id, message]) => {
-        //   console.log('deleted', id)
-        //   return message.delete()
-        // })
-
-        await verifyChannel.bulkDelete(vcFetched)
-      } while(vcFetched.size >= 1)}
 
       do {
         fcFetched = await fraudChannel.messages.fetch({limit: 100}, true, true)
