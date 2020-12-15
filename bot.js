@@ -145,7 +145,7 @@ async function dealWithMessage(message, channel) {
     return
 
   const body = {
-    id: message.author.username,
+    id: message.author.username.split('→')[1].trim(),
     token: process.env.GROOT_KEY,
   }
 
