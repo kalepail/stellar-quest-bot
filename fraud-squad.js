@@ -3,7 +3,7 @@ const isDev = process.env.NODE_ENV === 'development'
 if (isDev)
   require('dotenv').config()
 
-// const { last, compact, groupBy, map } = require('lodash')
+const { findIndex } = require('lodash')
 const Bluebird = require('bluebird')
 
 const fetch = require('node-fetch')
@@ -38,6 +38,20 @@ async function call() {
 
       do {
         fetched = await fraudChannel.messages.fetch({limit: 100})
+
+        fetched = fetched.filter((message) => {
+          if (message.author.username.indexOf('→') === -1)
+            return true
+
+          const id = message.author.username.split('→')[1].trim()
+          const index = findIndex(body, {id})
+
+          if (index > -1) {
+            body.splice(index, 1)
+            return false
+          }
+        })
+
         await fraudChannel.bulkDelete(fetched)
       } while(fetched.size >= 1)
 
@@ -60,7 +74,7 @@ async function call() {
         return hook.send(`<${isDev ? 'http://localhost:3333' : 'https://quest.stellar.org'}/users/inspect/${user.id}>`, webhookOptions)
       })
 
-      return `${body.length} pending users`
+      return `Added ${body.length} pending users`
     }
 
     else
