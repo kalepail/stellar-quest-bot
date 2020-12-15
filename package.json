@@ -3,7 +3,7 @@
   "private": true,
   "main": "bot.js",
   "scripts": {
-    "fs": "NODE_ENV=development node fraud-squad.js",
+    "fs": "NODE_ENV=development node fraud-squad.js 2",
     "start": "NODE_ENV=development nodemon bot.js",
     "exe": "node bot.js"
   },

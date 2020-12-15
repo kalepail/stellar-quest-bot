@@ -1,4 +1,5 @@
 const isDev = process.env.NODE_ENV === 'development'
+const args = process.argv.slice(2)
 
 if (isDev)
   require('dotenv').config()
@@ -29,7 +30,7 @@ call()
 async function call() {
   await client.login(process.env.DISCORD_BOT_TOKEN)
 
-  return fetch(`https://api-quest.stellar.buzz/utils/pending?series=2&token=${process.env.GROOT_KEY}`)
+  return fetch(`https://api-quest.stellar.buzz/utils/pending?series=${args[0]}&token=${process.env.GROOT_KEY}`)
   .then(async (res) => {
     const body = await res.json()
     const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
