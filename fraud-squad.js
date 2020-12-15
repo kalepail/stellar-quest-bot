@@ -44,7 +44,7 @@ async function call() {
           vcFetched = await verifyChannel.messages.fetch({limit: 100}, true, true)
 
           vcFetched = vcFetched.filter((message) =>
-            moment.utc(message.createdTimestamp, 'x').isBefore(moment.utc().subtract(24, 'hours'))
+            moment.utc(message.createdTimestamp, 'x').isBefore(moment.utc().subtract(1, 'week'))
           )
 
           // await Bluebird.mapSeries((vcFetched), ([id, message]) => {
