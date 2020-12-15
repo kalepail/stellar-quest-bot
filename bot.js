@@ -3,8 +3,7 @@ const isDev = process.env.NODE_ENV === 'development'
 if (isDev)
   require('dotenv').config()
 
-const { last, compact, groupBy, map } = require('lodash')
-const Bluebird = require('bluebird')
+const { compact } = require('lodash')
 
 const fetch = require('node-fetch')
 const { Client } = require('discord.js')
@@ -45,11 +44,10 @@ client.on('raw', async (packet) => {
           const message = await channel.messages.fetch(data.id, true, true)
 
           const [,
-            id,
-            series
+            id
           ] = data.content.split(' ')
 
-          await fetch(`${baseUrl}/user/submit?series=${series}`, {
+          await fetch(`${baseUrl}/user/submit?series=1`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -63,24 +61,6 @@ client.on('raw', async (packet) => {
 
           console.log(id, 'verified')
           await message.delete()
-        }
-
-        else if (
-          data.channel_id === '775930950034260008' // fraud-squad channel
-          && (
-            data.content.indexOf('♻️') > -1
-            || data.content.indexOf('✨') > -1
-          )
-        ) {
-          const fraudChannel = await client.channels.fetch(data.channel_id, true, true)
-          const commandMessage = await fraudChannel.messages.fetch(data.id, true, true)
-
-          await commandMessage.delete().catch(() => {})
-          const cleaningMessage = await fraudChannel.send('Cleaning, please wait...')
-
-          await cleanUpFraudChannel(fraudChannel, data.content.indexOf('✨') > -1)
-
-          await cleaningMessage.delete()
         }
       break
 
@@ -152,61 +132,17 @@ client.on('raw', async (packet) => {
 
 client.login(process.env.DISCORD_BOT_TOKEN)
 
-async function cleanUpFraudChannel(channel, trashConvo) {
-  if (channel.id !== '775930950034260008')
-    return
-
-  let messagesGroupedByUser = await channel.messages.fetch({limit: 100}, true, true)
-  .then((messages) => {
-    messages = messages.map((message) => message)
-
-    return groupBy(messages, (message) => {
-      if (message.content.indexOf('Inspect') > -1)
-        return message.author.username
-      else if (trashConvo)
-        return 'convo'
-    })
-  })
-
-  messagesGroupedByUser = map(messagesGroupedByUser, (messages, user) => ({
-    user,
-    messages
-  }))
-
-  await Bluebird.mapSeries(messagesGroupedByUser, ({messages, user}) => {
-    if (user !== 'undefined') {
-      console.log(`User: ${user}`)
-
-      return Bluebird.mapSeries(messages.reverse(), async (message, i) => {
-        if (i) {
-          console.log(`Message: ${message.id}`)
-          return message.delete().catch(() => {})
-        }
-      })
-    }
-  })
-}
-
 async function dealWithMessage(message, channel) {
-  if (message.content.indexOf('Inspect') === -1)
+  if (!message.author.bot)
     return
 
   const upvotes = message.reactions.cache.filter((reaction) => reaction.emoji.name === '👍').first()
   const downvotes = message.reactions.cache.filter((reaction) => reaction.emoji.name === '👎').first()
 
-  let [
-    badge,
-    inspect
-  ] = message.content.split('\n')
-  badge = last(badge.replace(/\s/g, '').split(':'))
-  inspect = last(inspect.replace(/\s/g, '').split(':'))
-
-  const isDevMessage = inspect.indexOf('quest') === -1
+  const isDevMessage = message.content.indexOf('quest') === -1
 
   if (isDevMessage !== isDev)
     return
-
-  const series = parseInt(badge.match(/\d{2}/g)[0])
 
   const body = {
     id: message.author.username,
@@ -214,7 +150,7 @@ async function dealWithMessage(message, channel) {
   }
 
   if (upvotes && upvotes.count >= 2) {
-    await fetch(`${baseUrl}/user/submit?series=${series}`, {
+    await fetch(`${baseUrl}/user/submit?series=1`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -226,11 +162,10 @@ async function dealWithMessage(message, channel) {
     })
 
     await message.delete()
-    await cleanUpFraudChannel(channel)
   }
 
   else if (downvotes && downvotes.count >= 3) {
-    await fetch(`${baseUrl}/user/submit?series=${series}`, {
+    await fetch(`${baseUrl}/user/submit?series=1`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -242,6 +177,5 @@ async function dealWithMessage(message, channel) {
     })
 
     await message.delete()
-    await cleanUpFraudChannel(channel)
   }
 }
