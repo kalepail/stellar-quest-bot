@@ -38,7 +38,49 @@ client.on('raw', async (packet) => {
 
         else if (
           data.channel_id === '768682525119610892' // admins-only channel
-          && data.content.indexOf('verify') > -1
+          && (
+            data.content.indexOf('🧠') > -1
+            || data.content.indexOf('👍') > -1
+            || data.content.indexOf('👎') > -1
+          )
+        ) {
+          const channel = await client.channels.fetch(data.channel_id, true, true)
+          const message = await channel.messages.fetch(data.id, true, true)
+
+          const [
+            emoji,
+            id
+          ] = data.content.split(' ')
+
+          let status
+
+          if (emoji === '🧠')
+            status = 'pending'
+
+          if (emoji === '👍')
+            status = 'yes'
+
+          if (emoji === '👎')
+            status = 'no'
+
+          await fetch(`${baseUrl}/user/submit?series=1`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              id,
+              token: process.env.GROOT_KEY,
+              verified: status
+            })
+          })
+
+          await message.delete()
+        }
+
+        else if (
+          data.channel_id === '775930950034260008' // fraud-squad channel
+          && data.content.indexOf('🧠') > -1
         ) {
           const channel = await client.channels.fetch(data.channel_id, true, true)
           const message = await channel.messages.fetch(data.id, true, true)
@@ -55,11 +97,10 @@ client.on('raw', async (packet) => {
             body: JSON.stringify({
               id,
               token: process.env.GROOT_KEY,
-              verified: 'yes'
+              verified: 'pending'
             })
           })
 
-          console.log(id, 'verified')
           await message.delete()
         }
       break
