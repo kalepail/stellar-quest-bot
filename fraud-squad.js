@@ -19,8 +19,6 @@ const client = new Client({partials: [
 
 const hook = new WebhookClient('776151831021486140', 'OSMo60PRHjcYbd42VPMEwWtx2fPQilWCPDTx4gZMz0_4jcjZ-cW9x2wMWmbV8vd1c9r2')
 
-;
-
 call()
 .then((res) => console.log(res))
 .catch((err) => console.error(err))
