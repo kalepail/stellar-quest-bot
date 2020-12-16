@@ -3,7 +3,7 @@ const isDev = process.env.NODE_ENV === 'development'
 if (isDev)
   require('dotenv').config()
 
-const { findIndex } = require('lodash')
+const { findIndex, uniqBy } = require('lodash')
 const moment = require('moment')
 const Bluebird = require('bluebird')
 
@@ -27,12 +27,12 @@ call()
 async function call() {
   await client.login(process.env.DISCORD_BOT_TOKEN)
 
-  const pendingUsers = []
   const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
   const verifyChannel = await client.channels.fetch('764096940450250763', true, true)
 
   let fcFetched
   let vcFetched
+  let pendingUsers = []
 
   await Bluebird.mapSeries([
     1,
@@ -44,6 +44,8 @@ async function call() {
         pendingUsers.push(...await res.json())
     })
   )
+
+  pendingUsers = uniqBy(pendingUsers, 'id')
 
   do {
     fcFetched = await fraudChannel.messages.fetch({limit: 100}, true, true)
