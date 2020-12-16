@@ -17,7 +17,7 @@ const client = new Client({partials: [
   'GUILD_MEMBER'
 ]})
 
-const hook = new WebhookClient('776151831021486140', 'OSMo60PRHjcYbd42VPMEwWtx2fPQilWCPDTx4gZMz0_4jcjZ-cW9x2wMWmbV8vd1c9r2')
+const hook = new WebhookClient('776151831021486140', process.env.DISCORD_WEBHOOK_TOKEN)
 
 call()
 .then((res) => console.log(res))
