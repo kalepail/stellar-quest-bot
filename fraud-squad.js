@@ -87,7 +87,8 @@ async function call() {
     vcFetched = await verifyChannel.messages.fetch({limit: 100}, true, true)
 
     vcFetched = vcFetched.filter((message) =>
-      moment.utc(message.createdTimestamp, 'x').isBefore(moment.utc().subtract(1, 'week'))
+      message.reactions.cache.has('✅')
+      || moment.utc(message.createdTimestamp, 'x').isBefore(moment.utc().subtract(1, 'week'))
     )
 
     // Only needed if messages are older than two weeks
