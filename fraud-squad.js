@@ -90,7 +90,7 @@ async function call() {
 
     vcFetched = vcFetched.filter((message) =>
       message.reactions.cache.has('✅')
-      || moment.utc(message.createdTimestamp, 'x').isBefore(moment.utc().subtract(1, 'week'))
+      || moment.utc(message.createdTimestamp, 'x').isBefore(moment.utc().subtract(36, 'hours'))
     )
 
     // Only needed if messages are older than two weeks
