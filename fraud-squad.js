@@ -89,7 +89,10 @@ async function call() {
     vcFetched = await verifyChannel.messages.fetch({limit: 100}, true, true)
 
     vcFetched = vcFetched.filter((message) =>
-      message.reactions.cache.has('✅')
+      vcFetched.filter((message) =>
+        message.reactions.cache.has('✅')
+      ).map((message) => message.author.id)
+      .indexOf(message.author.id) > -1
       || moment.utc(message.createdTimestamp, 'x').isBefore(moment.utc().subtract(36, 'hours'))
     )
 
