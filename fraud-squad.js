@@ -82,7 +82,7 @@ async function call() {
       webhookOptions.username = `${authHash.username} → ${authHash.id}`
     }
 
-    return hook.send(`<${isDev ? 'http://localhost:3333' : 'https://quest.stellar.org'}/users/inspect/${user.id}>`, webhookOptions)
+    return hook.send(`<${isDev ? 'http://localhost:3333' : 'https://quest.stellar.org'}/inspect/${user.id}>`, webhookOptions)
   })
 
   do {
