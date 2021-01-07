@@ -190,7 +190,7 @@ async function dealWithMessage(message, channel) {
     token: process.env.GROOT_KEY,
   }
 
-  if (upvotes && upvotes.count >= 2) {
+  if (upvotes && upvotes.count >= 1) {
     await fetch(`${baseUrl}/user/submit?series=1`, {
       method: 'POST',
       headers: {
@@ -205,7 +205,7 @@ async function dealWithMessage(message, channel) {
     await message.delete()
   }
 
-  else if (downvotes && downvotes.count >= 3) {
+  else if (downvotes && downvotes.count >= 1) {
     await fetch(`${baseUrl}/user/submit?series=1`, {
       method: 'POST',
       headers: {
