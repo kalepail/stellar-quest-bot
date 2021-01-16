@@ -205,7 +205,7 @@ async function dealWithMessage(message, channel) {
     await message.delete()
   }
 
-  else if (downvotes && downvotes.count >= 2) { // TODO: normally 3
+  else if (downvotes && downvotes.count >= 1) { // TODO: normally 3
     await fetch(`${baseUrl}/user/submit?series=1`, {
       method: 'POST',
       headers: {
