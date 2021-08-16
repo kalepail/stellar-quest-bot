@@ -29,7 +29,7 @@ client.on('raw', async (packet) => {
       // break
 
       case 'MESSAGE_CREATE':
-        if (data.content.indexOf('airdrop') > -1) {
+        if (data.content.toLowerCase().indexOf('airdrop') > -1) {
           const channel = await client.channels.fetch(data.channel_id, true, true)
           const message = await channel.messages.fetch(data.id, true, true)
 
