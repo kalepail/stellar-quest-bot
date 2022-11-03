@@ -4,16 +4,27 @@ if (isDev)
   require('dotenv').config()
 
 const { compact } = require('lodash')
+const userVerification = require('./user-verification')
 
 // const fetch = require('node-fetch')
-const { Client } = require('discord.js')
-const client = new Client({partials: [
-  'MESSAGE',
-  'CHANNEL',
-  'USER',
-  'REACTION',
-  'GUILD_MEMBER'
-]})
+const { Client, Partials, GatewayIntentBits } = require('discord.js')
+
+const client = new Client({
+  partials: [
+    Partials.Message,
+    Partials.User,
+    Partials.Channel,
+    Partials.Reaction,
+    Partials.GuildMember,
+  ],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.MessageContent,
+  ]
+})
 
 // const baseUrl = isDev ? 'http://127.0.0.1:8787' : 'https://api-quest.stellar.buzz'
 
@@ -27,6 +38,9 @@ client.on('raw', async (packet) => {
       //   const fraudChannel = await client.channels.fetch('775930950034260008', true, true)
       //   await fraudChannel.messages.fetch({limit: 100}, true, true).then((messages) => messages.map((message) => dealWithMessage(message, fraudChannel)))
       // break
+      case 'READY':
+        await userVerification.setupVerificationChannel(client)
+      break
 
       case 'MESSAGE_CREATE':
         if (data.content.toLowerCase().indexOf('airdrop') > -1) {
@@ -168,6 +182,12 @@ client.on('raw', async (packet) => {
 
   catch(err) {
     console.error(err)
+  }
+})
+
+client.on('interactionCreate', async interaction => {
+  if (interaction.customId == 'verify-user') {
+    userVerification.handleVerification(interaction).catch(console.error)
   }
 })
 
