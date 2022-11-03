@@ -38,16 +38,6 @@ client.on('raw', async (packet) => {
         await userVerification.setupVerificationChannel(client)
       break
 
-      case 'MESSAGE_CREATE':
-        if (data.content.toLowerCase().indexOf('airdrop') > -1) {
-          const channel = await client.channels.fetch(data.channel_id, true, true)
-          const message = await channel.messages.fetch(data.id, true, true)
-
-          await message.delete()
-        }
-
-      break
-
       case 'MESSAGE_REACTION_ADD':
         const channel = await client.channels.fetch(data.channel_id, true, true)
         let message = await channel.messages.fetch(data.message_id, true, true)
