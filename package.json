@@ -8,11 +8,16 @@
     "exe": "node bot.js"
   },
   "dependencies": {
+    "@prisma/client": "^4.5.0",
     "bluebird": "^3.7.2",
-    "discord.js": "^12.4.1",
+    "date-fns": "^2.29.3",
+    "discord.js": "14.5",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
     "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "prisma": "^4.5.0"
   }
 }
