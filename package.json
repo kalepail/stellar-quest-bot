@@ -4,7 +4,7 @@
   "main": "bot.js",
   "scripts": {
     "fs": "NODE_ENV=development node fraud-squad.js",
-    "start": "NODE_ENV=development nodemon bot.js",
+    "dev": "NODE_ENV=development nodemon bot.js",
     "exe": "node bot.js"
   },
   "dependencies": {
