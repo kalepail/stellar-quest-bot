@@ -13,7 +13,7 @@ module.exports.setupVerificationChannel = async function setupVerificationChanne
 
   if (needsSetup) {
     await channel.send({
-      content: '', // 'Please complete a few quests and then use the button below to get write access to this discord.',
+      content: `In order to gain the ability to send messages in our server you'll need to complete a few Quests first. Once you've done so just press the button below!`, // 'Please complete a few quests and then use the button below to get write access to this discord.',
       components: [{
         type: ComponentType.ActionRow,
         components: [{
@@ -54,7 +54,7 @@ module.exports.handleVerification = async function handleVerification(interactio
   if (!shouldBeVerified) {
     await interaction.reply({
       flags: MessageFlags.Ephemeral,
-      content: ':x: Please solve a few more quests then try again'
+      content: ':x: Please solve a few more Quests then try again'
     })
 
     return
