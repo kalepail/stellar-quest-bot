@@ -13,7 +13,7 @@ module.exports.setupVerificationChannel = async function setupVerificationChanne
 
   if (needsSetup) {
     await channel.send({
-      content: `In order to gain the ability to send messages in our server you'll need to complete a few Quests first. Once you've done so just press the button below!`, // 'Please complete a few quests and then use the button below to get write access to this discord.',
+      content: `In order to send messages in our server you'll need to complete a few Quests first. Once you've done so just press the button below!`,
       components: [{
         type: ComponentType.ActionRow,
         components: [{
