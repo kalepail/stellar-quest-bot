@@ -13,20 +13,19 @@ module.exports.setupVerificationChannel = async function setupVerificationChanne
 
   if (needsSetup) {
     await channel.send({
-      content: 'Please complete a few quests and then use the button below to get write access to this discord.',
+      content: '', // 'Please complete a few quests and then use the button below to get write access to this discord.',
       components: [{
         type: ComponentType.ActionRow,
         components: [{
           type: ComponentType.Button,
           style: ButtonStyle.Primary,
-          label: 'Verify me',
+          label: 'Verify Me',
           custom_id: 'verify-user'
         }]
       }]
     })
   }
 }
-
 
 module.exports.handleVerification = async function handleVerification(interaction) {
   const { id } = interaction.member.user
@@ -35,14 +34,16 @@ module.exports.handleVerification = async function handleVerification(interactio
       id
     }
   })
+
   if (
     alreadyVerified
     && isBefore(new Date(), addWeeks(alreadyVerified.verifiedAt, 4))
   ) {
     await interaction.reply({
       flags: MessageFlags.Ephemeral,
-      content: ':x: Sorry, you can not be verified again now.'
+      content: `:white_check_mark: You've already been verified!`
     })
+
     return
   }
 
@@ -53,8 +54,9 @@ module.exports.handleVerification = async function handleVerification(interactio
   if (!shouldBeVerified) {
     await interaction.reply({
       flags: MessageFlags.Ephemeral,
-      content: ':x:Please solve a few more quests and come back later!'
+      content: ':x: Please solve a few more quests then try again'
     })
+
     return
   }
 
@@ -75,6 +77,7 @@ module.exports.handleVerification = async function handleVerification(interactio
         id
       }
     }),
+
     // if we dont "reply" discord will flag this interaction as failed
     interaction.reply({
       flags: MessageFlags.Ephemeral,
@@ -82,4 +85,3 @@ module.exports.handleVerification = async function handleVerification(interactio
     })
   ])
 }
-
