@@ -19,28 +19,11 @@ const client = new Client({
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.MessageContent,
   ]
 })
 
-client.on('raw', async (packet) => {
-  try {
-    const { t: type } = packet
-    // console.log(packet)
-
-    switch (type) {
-      case 'READY':
-        await userVerification.setupVerificationChannel(client)
-      break
-
-      default:
-      return
-    }
-  }
-
-  catch(err) {
-    console.error(err)
-  }
+client.on('ready', async () => {
+  await userVerification.setupVerificationChannel(client)
 })
 
 client.on('interactionCreate', async interaction => {
