@@ -57,7 +57,7 @@ module.exports.setup = async function setupForum(client) {
       }, {
         type: ApplicationCommandOptionType.Subcommand,
         name: 'open',
-        description: 'Tag this post as open and remove the solved tag is set.'
+        description: 'Tag this post as open and remove the solved tag if set.'
       }]
     })
   }
@@ -70,13 +70,14 @@ module.exports.setup = async function setupForum(client) {
 async function handleMessage(message) {
   const channel = message.channel
   if (!channel.isThread
-    || channel.parentId != FORUM_CHANNEL_HELP)
+    || channel.parentId != FORUM_CHANNEL_HELP
+    || channel.ownerId == message.author.id)
     return
   if (message.member?.roles?.cache.has(LUMENAUT_ROLE_ID)
     && channel.appliedTags.includes(HELP_TAG_NEW)) {
     const tags = channel.appliedTags
     removeTag(tags, HELP_TAG_NEW)
-    addTag(tags, HELP_TAG_OPEN)
+    ensureTag(tags, HELP_TAG_OPEN)
     await channel.setAppliedTags(
       tags,
       'Lumenaut answered post.'
@@ -124,12 +125,14 @@ async function handleInteraction(interaction) {
   })
   switch (interaction.options.getSubcommand(true)) {
     case 'close':
+      removeTag(tags, HELP_TAG_NEW)
       removeTag(tags, HELP_TAG_OPEN)
       ensureTag(tags, HELP_TAG_SOLVED)
       await interaction.channel.setAppliedTags(tags, `Closed by ${actor}`)
       await interaction.channel.setArchived(true)
       break
     case 'solve':
+      removeTag(tags, HELP_TAG_NEW)
       removeTag(tags, HELP_TAG_OPEN)
       toggle(tags, HELP_TAG_SOLVED)
       await interaction.channel.setAppliedTags(tags, `Solved tag toggled by ${actor}`)
