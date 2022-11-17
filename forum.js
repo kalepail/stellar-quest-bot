@@ -76,7 +76,7 @@ async function handleMessage(message) {
     && channel.appliedTags.includes(HELP_TAG_NEW)) {
     const tags = channel.appliedTags
     removeTag(tags, HELP_TAG_NEW)
-    addTag(tags, HELP_TAG_OPEN)
+    ensureTag(tags, HELP_TAG_OPEN)
     await channel.setAppliedTags(
       tags,
       'Lumenaut answered post.'
