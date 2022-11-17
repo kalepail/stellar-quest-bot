@@ -125,12 +125,14 @@ async function handleInteraction(interaction) {
   })
   switch (interaction.options.getSubcommand(true)) {
     case 'close':
+      removeTag(tags, HELP_TAG_NEW)
       removeTag(tags, HELP_TAG_OPEN)
       ensureTag(tags, HELP_TAG_SOLVED)
       await interaction.channel.setAppliedTags(tags, `Closed by ${actor}`)
       await interaction.channel.setArchived(true)
       break
     case 'solve':
+      removeTag(tags, HELP_TAG_NEW)
       removeTag(tags, HELP_TAG_OPEN)
       toggle(tags, HELP_TAG_SOLVED)
       await interaction.channel.setAppliedTags(tags, `Solved tag toggled by ${actor}`)
