@@ -1,9 +1,10 @@
-const { PrismaClient } = require('@prisma/client')
 const fetch = require('node-fetch')
 const { ComponentType, ButtonStyle, MessageFlags } = require('discord.js')
 const { isBefore, addWeeks } = require('date-fns')
 
-const db = new PrismaClient()
+const db = require('./db')
+
+module.exports.interactionCustomId = 'verify-user'
 
 // Sets up a message in process.env.VERIFICATION_CHANNEL_ID if this channel is empty
 module.exports.setupVerificationChannel = async function setupVerificationChannel(client) {
@@ -21,12 +22,14 @@ Once you've done so just press the button below!`,
           type: ComponentType.Button,
           style: ButtonStyle.Primary,
           label: 'Verify Me',
-          custom_id: 'verify-user'
+          custom_id: module.exports.interactionCustomId
         }]
       }]
     })
   }
 }
+
+
 
 module.exports.handleVerification = async function handleVerification(interaction) {
   const { id } = interaction.member.user

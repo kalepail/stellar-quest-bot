@@ -4,7 +4,9 @@ if (isDev)
   require('dotenv').config()
 
 const userVerification = require('./user-verification')
+const wololo = require('./wololo')
 const { Client, Partials, GatewayIntentBits } = require('discord.js')
+const forum = require('./forum')
 
 const client = new Client({
   partials: [
@@ -19,33 +21,22 @@ const client = new Client({
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.MessageContent,
   ]
 })
 
-client.on('raw', async (packet) => {
-  try {
-    const { t: type } = packet
-    // console.log(packet)
-
-    switch (type) {
-      case 'READY':
-        await userVerification.setupVerificationChannel(client)
-      break
-
-      default:
-      return
-    }
-  }
-
-  catch(err) {
-    console.error(err)
-  }
+client.on('ready', async () => {
+  await userVerification.setupVerificationChannel(client)
+  await wololo.setup(client)
+  await forum.setup(client)
 })
 
 client.on('interactionCreate', async interaction => {
-  if (interaction.customId == 'verify-user') {
+  if (interaction.customId == userVerification.interactionCustomId) {
     userVerification.handleVerification(interaction).catch(console.error)
+  }
+
+  if (interaction.commandName == wololo.commandName) {
+    wololo.handleInteraction(interaction).catch(console.error)
   }
 })
 
