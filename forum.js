@@ -70,7 +70,8 @@ module.exports.setup = async function setupForum(client) {
 async function handleMessage(message) {
   const channel = message.channel
   if (!channel.isThread
-    || channel.parentId != FORUM_CHANNEL_HELP)
+    || channel.parentId != FORUM_CHANNEL_HELP
+    || channel.ownerId == message.author.id)
     return
   if (message.member?.roles?.cache.has(LUMENAUT_ROLE_ID)
     && channel.appliedTags.includes(HELP_TAG_NEW)) {
