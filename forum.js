@@ -113,7 +113,7 @@ async function handleInteraction(interaction) {
     })
   }
 
-  const actor = `${interaction.member.user.username}#${interaction.member.user.tag}`
+  const actor = interaction.member.user.tag
   const tags = interaction.channel.appliedTags
 
   // we need to reply before doing anything
@@ -121,7 +121,6 @@ async function handleInteraction(interaction) {
   await interaction.reply({
     flags: MessageFlags.Ephemeral,
     content: ':white_check_mark: Processing.'
-
   })
   switch (interaction.options.getSubcommand(true)) {
     case 'close':
