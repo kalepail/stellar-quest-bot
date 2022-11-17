@@ -1,4 +1,4 @@
-const { ApplicationCommandType, ApplicationCommandOptionType, MessageFlags } = require('discord.js')
+const { ApplicationCommandType, ApplicationCommandOptionType, MessageFlags, PermissionFlagsBits } = require('discord.js')
 const fetch = require('node-fetch')
 
 const db = require('./db')
@@ -14,6 +14,7 @@ module.exports.setup = async function wololoSetuo(client) {
       type: ApplicationCommandType.ChatInput,
       description: module.exports.commandName,
       dmPermission: false,
+      defaultMemberPermissions: PermissionFlagsBits.ManageMessages,
       options: [{
         name: module.exports.commandName,
         description: module.exports.commandName,

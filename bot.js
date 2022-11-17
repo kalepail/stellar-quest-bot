@@ -6,6 +6,7 @@ if (isDev)
 const userVerification = require('./user-verification')
 const wololo = require('./wololo')
 const { Client, Partials, GatewayIntentBits } = require('discord.js')
+const forum = require('./forum')
 
 const client = new Client({
   partials: [
@@ -26,6 +27,7 @@ const client = new Client({
 client.on('ready', async () => {
   await userVerification.setupVerificationChannel(client)
   await wololo.setup(client)
+  await forum.setup(client)
 })
 
 client.on('interactionCreate', async interaction => {
@@ -36,8 +38,6 @@ client.on('interactionCreate', async interaction => {
   if (interaction.commandName == wololo.commandName) {
     wololo.handleInteraction(interaction).catch(console.error)
   }
-
-
 })
 
 client.login(process.env.DISCORD_BOT_TOKEN)
