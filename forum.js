@@ -57,7 +57,7 @@ module.exports.setup = async function setupForum(client) {
       }, {
         type: ApplicationCommandOptionType.Subcommand,
         name: 'open',
-        description: 'Tag this post as open and remove the solved tag is set.'
+        description: 'Tag this post as open and remove the solved tag if set.'
       }]
     })
   }
