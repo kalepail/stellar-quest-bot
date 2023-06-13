@@ -14,7 +14,7 @@ module.exports.setupVerificationChannel = async function setupVerificationChanne
 
   if (needsSetup) {
     await channel.send({
-      content: `In order to send messages in our server you'll need to complete a few Quests first. 
+      content: `In order to join the inner sanctum you'll need to acquire a few <#1118164870987272242> badges first.
 Once you've done so just press the button below!`,
       components: [{
         type: ComponentType.ActionRow,
